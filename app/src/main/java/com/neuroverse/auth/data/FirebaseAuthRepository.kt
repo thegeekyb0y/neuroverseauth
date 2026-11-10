@@ -57,11 +57,19 @@ class FirebaseAuthRepository(
             val user = requireNotNull(result.user) {
                 "Firebase created an account without a user"
             }
-            val profile = UserProfileChangeRequest.Builder()
-                .setDisplayName(displayName)
-                .build()
-            user.updateProfile(profile).await()
-            user.reload().await()
+
+            // Past this point the account exists and Firebase has already signed
+            // the user in. A failed profile write or refresh must not be reported
+            // as a failed registration: the app falls back to the email prefix
+            // for the greeting, and the user is never left on a dead spinner.
+            runCatching {
+                user.updateProfile(
+                    UserProfileChangeRequest.Builder()
+                        .setDisplayName(displayName)
+                        .build()
+                ).await()
+            }
+            runCatching { user.reload().await() }
         }
     }
 
