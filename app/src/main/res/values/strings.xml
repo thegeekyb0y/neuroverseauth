@@ -1,3 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">NeuroVerseAuth</string>
+
+    <string name="welcome_title">NeuroVerse</string>
+    <string name="welcome_subtitle">Secure sign-in for your NeuroVerse account.</string>
+
+    <string name="action_create_account">Create account</string>
+    <string name="action_log_in">Log in</string>
+    <string name="action_sign_out">Sign out</string>
+    <string name="action_back">Back</string>
+
+    <string name="home_title">You\'re signed in</string>
+
+    <string name="placeholder_coming_soon">Coming in the next milestone.</string>
+    <string name="loading">Loading</string>
 </resources>
