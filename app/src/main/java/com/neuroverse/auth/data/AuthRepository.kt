@@ -26,5 +26,14 @@ interface AuthRepository {
 
     suspend fun signIn(email: String, password: String)
 
+    /**
+     * Asks Firebase to email a reset link.
+     *
+     * The caller must treat the outcome as neutral: with email enumeration
+     * protection on, an unknown address succeeds silently, and with it off the
+     * call throws. Both paths have to look identical in the UI.
+     */
+    suspend fun sendPasswordReset(email: String)
+
     suspend fun signOut()
 }

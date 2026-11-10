@@ -69,6 +69,10 @@ class FirebaseAuthRepository(
         auth.signInWithEmailAndPassword(email, password).await()
     }
 
+    override suspend fun sendPasswordReset(email: String) {
+        auth.sendPasswordResetEmail(email).await()
+    }
+
     override suspend fun signOut() {
         auth.signOut()
     }
