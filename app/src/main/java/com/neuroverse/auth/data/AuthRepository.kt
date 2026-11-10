@@ -15,5 +15,16 @@ interface AuthRepository {
      */
     val session: Flow<AuthUser?>
 
+    /**
+     * Creates the account and writes the display name before returning.
+     *
+     * Declared as one call rather than "create" plus "set name" so a caller cannot
+     * accidentally produce a signed-in user with a blank name. Failures surface as
+     * Firebase or IO exceptions for the view model to map.
+     */
+    suspend fun register(displayName: String, email: String, password: String)
+
+    suspend fun signIn(email: String, password: String)
+
     suspend fun signOut()
 }

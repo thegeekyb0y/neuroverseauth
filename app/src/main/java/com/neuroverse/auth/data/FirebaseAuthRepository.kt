@@ -2,6 +2,7 @@ package com.neuroverse.auth.data
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -46,6 +47,27 @@ class FirebaseAuthRepository(
         auth.addAuthStateListener(listener)
         awaitClose { auth.removeAuthStateListener(listener) }
     }.distinctUntilChanged()
+
+    override suspend fun register(displayName: String, email: String, password: String) {
+        // The whole sequence runs under the gate. createUser fires the auth state
+        // listener immediately, and that listener blocks here until the display
+        // name is written and reloaded, so SignedIn can never carry a null name.
+        withProfileWrite {
+            val result = auth.createUserWithEmailAndPassword(email, password).await()
+            val user = requireNotNull(result.user) {
+                "Firebase created an account without a user"
+            }
+            val profile = UserProfileChangeRequest.Builder()
+                .setDisplayName(displayName)
+                .build()
+            user.updateProfile(profile).await()
+            user.reload().await()
+        }
+    }
+
+    override suspend fun signIn(email: String, password: String) {
+        auth.signInWithEmailAndPassword(email, password).await()
+    }
 
     override suspend fun signOut() {
         auth.signOut()

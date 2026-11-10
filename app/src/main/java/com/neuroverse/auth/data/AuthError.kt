@@ -1,5 +1,6 @@
 package com.neuroverse.auth.data
 
+import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthException
 import java.io.IOException
 
@@ -18,6 +19,9 @@ enum class AuthError {
 }
 
 fun Throwable.toAuthError(): AuthError = when (this) {
+    // Network failures are a FirebaseException but not a FirebaseAuthException,
+    // so they need their own branch or they degrade to Unknown.
+    is FirebaseNetworkException -> AuthError.Network
     is FirebaseAuthException -> when (errorCode) {
         "ERROR_INVALID_EMAIL" -> AuthError.InvalidEmail
         "ERROR_WEAK_PASSWORD" -> AuthError.WeakPassword
