@@ -32,7 +32,13 @@ class MainActivity : ComponentActivity() {
                     state = sessionState,
                     showWelcome = welcomePending,
                     onWelcomeShown = welcomeSignal::consume,
-                    onSignOut = sessionViewModel::signOut,
+                    onSignOut = {
+                        // Logout clears every local auth flag we own. Screen state
+                        // dies with the nav graph; this one is app-wide, so it has
+                        // to be reset by hand or the next user sees the greeting.
+                        welcomeSignal.consume()
+                        sessionViewModel.signOut()
+                    },
                 )
             }
         }

@@ -12,19 +12,24 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.neuroverse.auth.data.AuthUser
 import com.neuroverse.auth.di.ServiceLocator
+import com.neuroverse.auth.ui.screens.ForgotPasswordScreen
 import com.neuroverse.auth.ui.screens.HomeScreen
 import com.neuroverse.auth.ui.screens.LoginScreen
-import com.neuroverse.auth.ui.screens.PlaceholderScreen
+import com.neuroverse.auth.ui.screens.ProfileScreen
 import com.neuroverse.auth.ui.screens.RegisterScreen
 import com.neuroverse.auth.ui.screens.SplashScreen
 import com.neuroverse.auth.ui.screens.WelcomeScreen
 import com.neuroverse.auth.ui.theme.Motion
+import com.neuroverse.auth.viewmodel.ForgotPasswordViewModel
 import com.neuroverse.auth.viewmodel.LoginViewModel
+import com.neuroverse.auth.viewmodel.ProfileViewModel
 import com.neuroverse.auth.viewmodel.RegisterViewModel
 import com.neuroverse.auth.viewmodel.SessionState
 
@@ -33,6 +38,10 @@ import com.neuroverse.auth.viewmodel.SessionState
  * screen can never be reached while signed out, and no destination is chosen
  * while the session is still Loading (that would flash Login for a signed-in
  * user).
+ *
+ * Signing out drops the whole [MainNavHost] subtree, including its
+ * NavController and view model store, so the authenticated back stack does not
+ * exist any more. That is why Back cannot return to Home after logout.
  */
 @Composable
 fun AppNavHost(
@@ -45,7 +54,7 @@ fun AppNavHost(
         SessionState.Loading -> SplashScreen()
         SessionState.SignedOut -> AuthNavHost()
         is SessionState.SignedIn -> MainNavHost(
-            email = state.user.email.orEmpty(),
+            user = state.user,
             showWelcome = showWelcome,
             onWelcomeShown = onWelcomeShown,
             onSignOut = onSignOut,
@@ -53,14 +62,21 @@ fun AppNavHost(
     }
 }
 
+/**
+ * Shared 300ms fade plus 16dp slide. Transactions are not composable, so the
+ * pixel offset is resolved once per composition.
+ */
 @Composable
-private fun AuthNavHost(navController: NavHostController = rememberNavController()) {
-    // 16dp of travel, converted once because transaction lambdas are not composable.
+private fun AnimatedNavHost(
+    navController: NavHostController,
+    startDestination: String,
+    builder: NavGraphBuilder.() -> Unit,
+) {
     val slide = with(LocalDensity.current) { 16.dp.roundToPx() }
 
     NavHost(
         navController = navController,
-        startDestination = Routes.WELCOME,
+        startDestination = startDestination,
         enterTransition = {
             fadeIn(tween(Motion.Screen, easing = Motion.Standard)) +
                 slideInHorizontally(tween(Motion.Screen, easing = Motion.Standard)) { slide }
@@ -77,6 +93,15 @@ private fun AuthNavHost(navController: NavHostController = rememberNavController
             fadeOut(tween(Motion.Screen)) +
                 slideOutHorizontally(tween(Motion.Screen)) { slide }
         },
+        builder = builder,
+    )
+}
+
+@Composable
+private fun AuthNavHost(navController: NavHostController = rememberNavController()) {
+    AnimatedNavHost(
+        navController = navController,
+        startDestination = Routes.WELCOME,
     ) {
         composable(Routes.WELCOME) {
             WelcomeScreen(
@@ -107,9 +132,41 @@ private fun AuthNavHost(navController: NavHostController = rememberNavController
             )
         }
         composable(Routes.FORGOT_PASSWORD) {
-            PlaceholderScreen(
-                title = "Reset password",
+            ForgotPasswordRoute(
+                // Also used by "Back to login": this screen is only reachable
+                // from Login, so popping lands exactly there.
                 onBack = { navController.popBackStack() },
+            )
+        }
+    }
+}
+
+@Composable
+private fun MainNavHost(
+    user: AuthUser,
+    showWelcome: Boolean,
+    onWelcomeShown: () -> Unit,
+    onSignOut: () -> Unit,
+    navController: NavHostController = rememberNavController(),
+) {
+    AnimatedNavHost(
+        navController = navController,
+        startDestination = Routes.HOME,
+    ) {
+        composable(Routes.HOME) {
+            HomeScreen(
+                user = user,
+                showWelcome = showWelcome,
+                onWelcomeShown = onWelcomeShown,
+                onSignOut = onSignOut,
+                onOpenProfile = { navController.navigate(Routes.PROFILE) },
+            )
+        }
+        composable(Routes.PROFILE) {
+            ProfileRoute(
+                user = user,
+                onBack = { navController.popBackStack() },
+                onSignOut = onSignOut,
             )
         }
     }
@@ -169,24 +226,34 @@ private fun LoginRoute(
 }
 
 @Composable
-private fun MainNavHost(
-    email: String,
-    showWelcome: Boolean,
-    onWelcomeShown: () -> Unit,
+private fun ForgotPasswordRoute(onBack: () -> Unit) {
+    val factory = remember { ForgotPasswordViewModel.factory(ServiceLocator.authRepository) }
+    val viewModel: ForgotPasswordViewModel = viewModel(factory = factory)
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    ForgotPasswordScreen(
+        state = state,
+        onSubmit = viewModel::submit,
+        onEmailChange = viewModel::onEmailChange,
+        onEmailBlur = viewModel::onEmailBlur,
+        onRetry = viewModel::onRetry,
+        onBack = onBack,
+    )
+}
+
+@Composable
+private fun ProfileRoute(
+    user: AuthUser,
+    onBack: () -> Unit,
     onSignOut: () -> Unit,
-    navController: NavHostController = rememberNavController(),
 ) {
-    NavHost(
-        navController = navController,
-        startDestination = Routes.HOME,
-    ) {
-        composable(Routes.HOME) {
-            HomeScreen(
-                email = email,
-                showWelcome = showWelcome,
-                onWelcomeShown = onWelcomeShown,
-                onSignOut = onSignOut,
-            )
-        }
-    }
+    val factory = remember(user) { ProfileViewModel.factory(user) }
+    val viewModel: ProfileViewModel = viewModel(factory = factory)
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    ProfileScreen(
+        state = state,
+        onBack = onBack,
+        onSignOut = onSignOut,
+    )
 }
