@@ -17,7 +17,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.neuroverse.auth.R
@@ -35,12 +38,22 @@ fun HomeScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val welcomeMessage = stringResource(R.string.home_welcome)
 
-    // Fires once per Home composition. Keying on Unit (not on the flag) matters:
-    // consuming the flag would otherwise restart this effect and cancel the
-    // snackbar before it could show.
-    LaunchedEffect(Unit) {
-        if (!showWelcome) return@LaunchedEffect
-        onWelcomeShown()
+    // The gate can swap to Home a moment before the registration flag lands, so
+    // the flag is watched rather than sampled once. Consuming it immediately and
+    // showing from a separate effect means neither ordering loses the snackbar,
+    // and a rotation cannot replay it.
+    var shouldShowWelcome by remember { mutableStateOf(false) }
+
+    LaunchedEffect(showWelcome) {
+        if (showWelcome) {
+            onWelcomeShown()
+            shouldShowWelcome = true
+        }
+    }
+
+    LaunchedEffect(shouldShowWelcome) {
+        if (!shouldShowWelcome) return@LaunchedEffect
+        shouldShowWelcome = false
         snackbarHostState.showSnackbar(
             message = welcomeMessage,
             duration = SnackbarDuration.Long,
