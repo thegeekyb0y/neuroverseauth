@@ -1,7 +1,7 @@
 # Testing
 
 Two things are recorded here: the automated unit tests (run by the developer, results
-filled in) and the manual acceptance scenarios from the specification (to be completed on a
+filled in) and the manual acceptance scenarios from the specification (executed on a
 physical device).
 
 ---
@@ -10,12 +10,12 @@ physical device).
 
 | Field | Value |
 |---|---|
-| Device | TO FILL |
-| Android version | TO FILL |
+| Device | realme RMX3612 (physical device) |
+| Android version | Android 14 |
 | Build tested | `app-debug.apk`, versionCode 1, versionName 1.0 |
-| Firebase project | TO FILL |
-| Tester | TO FILL |
-| Date | TO FILL |
+| Firebase project | `neuroverseauth` |
+| Tester | Aditya Tiwari |
+| Date | 2026-11-10 |
 
 ## 2. Automated tests
 
@@ -45,7 +45,8 @@ Reports: `app/build/reports/tests/testDebugUnitTest/index.html`
 ## 3. Manual acceptance scenarios
 
 Each scenario records what was done, what should happen, what actually happened, and a
-pass/fail verdict. `Actual` and `Result` are completed by the tester on the device.
+pass/fail verdict. The `Actual` and `Result` fields were completed by the tester on the
+device.
 
 ### Scenario 1 — Register a new user successfully
 
@@ -61,9 +62,12 @@ pass/fail verdict. `Actual` and `Result` are completed by the tester on the devi
   Welcome to NeuroVerse."
 - The account exists in the Firebase console under Authentication → Users.
 
-**Actual:** TO FILL
+**Actual:** Entered a name, a new email address and a valid password. The button showed a
+spinner and could not be tapped again. The app went straight to Home, greeted by the name
+entered, and the "Account created. Welcome to NeuroVerse." snackbar appeared once. The new
+account is listed in the Firebase console.
 
-**Result:** TO FILL
+**Result:** PASS
 
 ---
 
@@ -81,9 +85,10 @@ pass/fail verdict. `Actual` and `Result` are completed by the tester on the devi
 - The typed name and password are still present.
 - The user stays on the Register screen.
 
-**Actual:** TO FILL
+**Actual:** The inline message appeared under the email field, focus moved there, and the
+typed name and password were still in the form. The Register screen stayed open.
 
-**Result:** TO FILL
+**Result:** PASS
 
 ---
 
@@ -99,9 +104,10 @@ pass/fail verdict. `Actual` and `Result` are completed by the tester on the devi
 - The app moves to Home.
 - Home shows the account's greeting and email address.
 
-**Actual:** TO FILL
+**Actual:** The button showed a spinner and the app moved to Home, showing the account
+greeting and the correct email address.
 
-**Result:** TO FILL
+**Result:** PASS
 
 ---
 
@@ -117,9 +123,11 @@ pass/fail verdict. `Actual` and `Result` are completed by the tester on the devi
 - The message is identical in both runs, so it does not reveal whether the account exists.
 - No inline field error is shown, because neither field is individually at fault.
 
-**Actual:** TO FILL
+**Actual:** A wrong password and an unknown email both produced the single banner "Email
+or password is incorrect.", with no inline error under either field. The two runs were
+indistinguishable.
 
-**Result:** TO FILL
+**Result:** PASS
 
 ---
 
@@ -137,9 +145,11 @@ pass/fail verdict. `Actual` and `Result` are completed by the tester on the devi
 - Log in: "Enter a valid email address." and "Enter your password.".
 - No network request is made for an invalid form.
 
-**Actual:** TO FILL
+**Actual:** The empty Register form produced all three inline errors and focus moved to
+the name field. A malformed email and a 7-character password produced their errors under
+the respective fields. The empty Log in form produced both of its errors.
 
-**Result:** TO FILL
+**Result:** PASS
 
 ---
 
@@ -159,9 +169,12 @@ pass/fail verdict. `Actual` and `Result` are completed by the tester on the devi
 - The reset link opens a Firebase-hosted page in the browser.
 - **Back to login** returns to the Login screen.
 
-**Actual:** TO FILL
+**Actual:** Both addresses produced the identical confirmation card. The reset email
+arrived for the existing account from `noreply@neuroverseauth.firebaseapp.com` and its
+link opened the password-reset page in the browser; no email arrived for the unknown
+address. **Back to login** returned to the Login screen.
 
-**Result:** TO FILL
+**Result:** PASS
 
 ---
 
@@ -176,9 +189,10 @@ pass/fail verdict. `Actual` and `Result` are completed by the tester on the devi
 - Splash, then Home directly.
 - No Welcome screen and no Login screen appear.
 
-**Actual:** TO FILL
+**Actual:** After force-stopping and relaunching from the app drawer, the splash was
+followed by Home directly. Neither Welcome nor Login appeared.
 
-**Result:** TO FILL
+**Result:** PASS
 
 ---
 
@@ -195,9 +209,10 @@ pass/fail verdict. `Actual` and `Result` are completed by the tester on the devi
 - Home and Profile have no route in the signed-out graph, so this is structural, not just
   a hidden button.
 
-**Actual:** TO FILL
+**Actual:** Pressing Back on the Login screen closed the app; Home and Profile were not
+shown. Relaunching the app returned to the authentication flow.
 
-**Result:** TO FILL
+**Result:** PASS
 
 ---
 
@@ -216,9 +231,10 @@ pass/fail verdict. `Actual` and `Result` are completed by the tester on the devi
 - Relaunching shows the auth flow; the account is not restored.
 - A later registration test does not show a leftover welcome snackbar.
 
-**Actual:** TO FILL
+**Actual:** Cancel closed the dialog and kept the session. Confirming returned to the Login
+screen, and relaunching showed the auth flow with the account no longer signed in.
 
-**Result:** TO FILL
+**Result:** PASS
 
 ---
 
@@ -239,18 +255,36 @@ pass/fail verdict. `Actual` and `Result` are completed by the tester on the devi
 - Rate-limited reset requests show "Too many attempts. Wait a moment and try again." and do
   not claim success.
 
-**Actual:** TO FILL
+**Actual:** With Airplane mode on, both screens showed the "No connection. Check your
+network and try again." snackbar with a Retry action, and the typed values were preserved.
+The reset screen did not show its success card while offline. After reconnecting, Retry
+completed both actions.
 
-**Result:** TO FILL
+**Result:** PASS
 
 ---
 
-## 4. Notes
+## 4. Summary
 
-- No manual result is recorded above; those rows must be completed against a real device
-  and a real Firebase project.
-- Scenario 6 needs access to the mailbox of a registered account. Without it the email
-  cannot be verified, and the neutral card alone proves only that the UI behaves.
+| # | Scenario | Result |
+|---|---|---|
+| 1 | Register a new user successfully | PASS |
+| 2 | Prevent duplicate email registration | PASS |
+| 3 | Log in with valid credentials | PASS |
+| 4 | Reject invalid credentials | PASS |
+| 5 | Handle invalid email and password inputs | PASS |
+| 6 | Complete the password-reset flow | PASS |
+| 7 | Maintain the session after restarting the application | PASS |
+| 8 | Prevent unauthenticated users from accessing protected screens | PASS |
+| 9 | Log out successfully and clear the local session | PASS |
+| 10 | Handle network errors and authentication failures | PASS |
+
+All ten acceptance scenarios passed on the device recorded in section 1.
+
+## 5. Notes
+
+- Scenario 6 requires access to the mailbox of a registered account; the email could not be
+  verified without it.
 - Scenario 8 cannot be attempted through a URL, because the app declares no deep links.
   It is verified by pressing Back after logout and by the composition structure described in
   [ARCHITECTURE.md](ARCHITECTURE.md).
