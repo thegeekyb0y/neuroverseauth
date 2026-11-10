@@ -7,6 +7,7 @@ package com.neuroverse.auth.domain
 enum class FieldError {
     NameBlank,
     EmailInvalid,
+    EmailInUse,
     PasswordTooShort,
     PasswordBlank,
 }

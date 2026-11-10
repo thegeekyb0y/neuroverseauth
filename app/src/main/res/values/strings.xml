@@ -9,9 +9,42 @@
     <string name="action_log_in">Log in</string>
     <string name="action_sign_out">Sign out</string>
     <string name="action_back">Back</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_show_password">Show password</string>
+    <string name="action_hide_password">Hide password</string>
 
     <string name="home_title">You\'re signed in</string>
+    <string name="home_welcome">Account created. Welcome to NeuroVerse.</string>
 
     <string name="placeholder_coming_soon">Coming in the next milestone.</string>
     <string name="loading">Loading</string>
+
+    <!-- Register -->
+    <string name="register_title">Create your account</string>
+    <string name="register_subtitle">A few details and you\'re in.</string>
+    <string name="register_footer_prompt">Already have an account?</string>
+
+    <!-- Log in -->
+    <string name="login_title">Welcome back</string>
+    <string name="login_subtitle">Log in to pick up where you left off.</string>
+    <string name="login_footer_prompt">New to NeuroVerse?</string>
+    <string name="action_forgot_password">Forgot password\?</string>
+
+    <!-- Fields -->
+    <string name="field_name">Full name</string>
+    <string name="field_email">Email</string>
+    <string name="field_password">Password</string>
+
+    <!-- Field errors -->
+    <string name="error_name_blank">Enter your name.</string>
+    <string name="error_email_invalid">Enter a valid email address.</string>
+    <string name="error_password_short">Use at least 8 characters.</string>
+    <string name="error_password_blank">Enter your password.</string>
+
+    <!-- Form errors -->
+    <string name="error_email_in_use">An account with this email already exists. Try logging in.</string>
+    <string name="error_invalid_credentials">Email or password is incorrect.</string>
+    <string name="error_network">No connection. Check your network and try again.</string>
+    <string name="error_unknown">Something went wrong. Try again.</string>
+    <string name="error_too_many_requests">Too many attempts. Wait a moment and try again.</string>
 </resources>
