@@ -27,6 +27,7 @@ import com.neuroverse.auth.ui.screens.RegisterScreen
 import com.neuroverse.auth.ui.screens.SplashScreen
 import com.neuroverse.auth.ui.screens.WelcomeScreen
 import com.neuroverse.auth.ui.theme.Motion
+import com.neuroverse.auth.viewmodel.AuthEntry
 import com.neuroverse.auth.viewmodel.ForgotPasswordViewModel
 import com.neuroverse.auth.viewmodel.LoginViewModel
 import com.neuroverse.auth.viewmodel.ProfileViewModel
@@ -52,7 +53,7 @@ fun AppNavHost(
 ) {
     when (state) {
         SessionState.Loading -> SplashScreen()
-        SessionState.SignedOut -> AuthNavHost()
+        is SessionState.SignedOut -> AuthNavHost(startAtLogin = state.entry == AuthEntry.Login)
         is SessionState.SignedIn -> MainNavHost(
             user = state.user,
             showWelcome = showWelcome,
@@ -98,10 +99,13 @@ private fun AnimatedNavHost(
 }
 
 @Composable
-private fun AuthNavHost(navController: NavHostController = rememberNavController()) {
+private fun AuthNavHost(
+    startAtLogin: Boolean,
+    navController: NavHostController = rememberNavController(),
+) {
     AnimatedNavHost(
         navController = navController,
-        startDestination = Routes.WELCOME,
+        startDestination = if (startAtLogin) Routes.LOGIN else Routes.WELCOME,
     ) {
         composable(Routes.WELCOME) {
             WelcomeScreen(
@@ -122,7 +126,16 @@ private fun AuthNavHost(navController: NavHostController = rememberNavController
         }
         composable(Routes.LOGIN) {
             LoginRoute(
-                onBack = { navController.popBackStack() },
+                onBack = {
+                    // After a logout Login is the start destination, so there is
+                    // nothing to pop. Welcome stays in the graph and becomes the
+                    // new root instead.
+                    if (!navController.popBackStack()) {
+                        navController.navigate(Routes.WELCOME) {
+                            popUpTo(Routes.LOGIN) { inclusive = true }
+                        }
+                    }
+                },
                 onForgotPassword = { navController.navigate(Routes.FORGOT_PASSWORD) },
                 onCreateAccount = {
                     navController.navigate(Routes.REGISTER) {

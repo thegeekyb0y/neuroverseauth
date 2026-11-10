@@ -14,9 +14,25 @@ class SessionViewModel(
     private val repository: AuthRepository,
 ) : ViewModel() {
 
+    /**
+     * True once this process has held a session.
+     *
+     * Plain field rather than saved state: it survives rotation with the view
+     * model, and it resets when the process dies, which is exactly the rule we
+     * want. A cold start lands on Welcome; a logout lands on Login.
+     */
+    private var hasSignedIn = false
+
     val state: StateFlow<SessionState> = repository.session
         .map { user ->
-            if (user == null) SessionState.SignedOut else SessionState.SignedIn(user)
+            if (user == null) {
+                SessionState.SignedOut(
+                    entry = if (hasSignedIn) AuthEntry.Login else AuthEntry.Welcome
+                )
+            } else {
+                hasSignedIn = true
+                SessionState.SignedIn(user)
+            }
         }
         .stateIn(
             scope = viewModelScope,
