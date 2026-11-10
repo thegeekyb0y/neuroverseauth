@@ -148,19 +148,22 @@ metadata version is 2.4.0; this project compiles with Kotlin 2.2.10, which rejec
 
 ## Screenshots
 
-Add the images to `docs/screenshots/` with these file names:
+Captured on a physical device at 1080×2408. Images live in
+[`docs/screenshots/`](docs/screenshots).
 
 | File | Screen |
 |---|---|
-| `01-welcome.png` | Welcome |
-| `02-register.png` | Register with validation errors |
-| `03-login.png` | Log in |
-| `04-forgot-password.png` | Forgot password form |
-| `05-forgot-password-sent.png` | Neutral confirmation card |
-| `06-home.png` | Home |
-| `07-profile.png` | Profile |
-| `08-logout-dialog.png` | Log out confirmation |
-| `09-home-dark.png` | Home in dark theme |
+| [`01-welcome.jpg`](docs/screenshots/01-welcome.jpg) | Welcome |
+| [`02-register.jpg`](docs/screenshots/02-register.jpg) | Register with validation errors |
+| [`03-login.jpg`](docs/screenshots/03-login.jpg) | Log in |
+| [`04-forgot-password.jpg`](docs/screenshots/04-forgot-password.jpg) | Forgot password form |
+| [`05-forgot-password-sent.jpg`](docs/screenshots/05-forgot-password-sent.jpg) | Neutral confirmation card |
+| [`06-home.jpg`](docs/screenshots/06-home.jpg) | Home |
+| [`07-profile.jpg`](docs/screenshots/07-profile.jpg) | Profile |
+| [`08-logout-dialog.jpg`](docs/screenshots/08-logout-dialog.jpg) | Log out confirmation |
+| [`09-home-light.jpg`](docs/screenshots/09-home-light.jpg) | Home, light theme |
+
+The app supports a dark theme; only the light theme is captured here.
 
 ## Security summary
 
