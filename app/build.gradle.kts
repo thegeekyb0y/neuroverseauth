@@ -35,6 +35,14 @@ android {
     buildFeatures {
         compose = true
     }
+
+    testOptions {
+        unitTests {
+            // Firebase exception constructors touch android.text.TextUtils.
+            // Returning defaults keeps JVM tests free of Robolectric.
+            isReturnDefaultValues = true
+        }
+    }
 }
 
 dependencies {
@@ -57,6 +65,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.play.services)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -18,23 +18,29 @@ enum class AuthError {
     Unknown,
 }
 
+/**
+ * Firebase error code to category. Split out from [toAuthError] so the mapping
+ * can be unit-tested without fabricating platform exceptions.
+ */
+internal fun authErrorForCode(errorCode: String): AuthError = when (errorCode) {
+    "ERROR_INVALID_EMAIL" -> AuthError.InvalidEmail
+    "ERROR_WEAK_PASSWORD" -> AuthError.WeakPassword
+    "ERROR_EMAIL_ALREADY_IN_USE" -> AuthError.EmailAlreadyInUse
+    // With email enumeration protection on, both a wrong password and an
+    // unknown account surface as invalid credentials. Keep them merged.
+    "ERROR_INVALID_CREDENTIAL",
+    "ERROR_WRONG_PASSWORD",
+    "ERROR_USER_NOT_FOUND" -> AuthError.InvalidCredentials
+    "ERROR_TOO_MANY_REQUESTS" -> AuthError.TooManyRequests
+    "ERROR_NETWORK_REQUEST_FAILED" -> AuthError.Network
+    else -> AuthError.Unknown
+}
+
 fun Throwable.toAuthError(): AuthError = when (this) {
     // Network failures are a FirebaseException but not a FirebaseAuthException,
     // so they need their own branch or they degrade to Unknown.
     is FirebaseNetworkException -> AuthError.Network
-    is FirebaseAuthException -> when (errorCode) {
-        "ERROR_INVALID_EMAIL" -> AuthError.InvalidEmail
-        "ERROR_WEAK_PASSWORD" -> AuthError.WeakPassword
-        "ERROR_EMAIL_ALREADY_IN_USE" -> AuthError.EmailAlreadyInUse
-        // With email enumeration protection on, both a wrong password and an
-        // unknown account surface as invalid credentials. Keep them merged.
-        "ERROR_INVALID_CREDENTIAL",
-        "ERROR_WRONG_PASSWORD",
-        "ERROR_USER_NOT_FOUND" -> AuthError.InvalidCredentials
-        "ERROR_TOO_MANY_REQUESTS" -> AuthError.TooManyRequests
-        "ERROR_NETWORK_REQUEST_FAILED" -> AuthError.Network
-        else -> AuthError.Unknown
-    }
+    is FirebaseAuthException -> authErrorForCode(errorCode)
     is IOException -> AuthError.Network
     else -> AuthError.Unknown
 }
