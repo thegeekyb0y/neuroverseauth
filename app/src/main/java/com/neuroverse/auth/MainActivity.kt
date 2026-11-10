@@ -25,8 +25,13 @@ class MainActivity : ComponentActivity() {
                 val sessionViewModel: SessionViewModel = viewModel(factory = factory)
                 val sessionState by sessionViewModel.state.collectAsStateWithLifecycle()
 
+                val welcomeSignal = ServiceLocator.welcomeSignal
+                val welcomePending by welcomeSignal.pending.collectAsStateWithLifecycle()
+
                 AppNavHost(
                     state = sessionState,
+                    showWelcome = welcomePending,
+                    onWelcomeShown = welcomeSignal::consume,
                     onSignOut = sessionViewModel::signOut,
                 )
             }
